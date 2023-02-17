@@ -14,6 +14,7 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'kotlin-android'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -25,5 +26,7 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation 'org.ftclib.ftclib:vision:2.0.1' // vision
+    implementation 'org.ftclib.ftclib:core:2.0.1' // core
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }
