@@ -10,16 +10,16 @@ import org.firstinspires.ftc.teamcode.subsystems.LeapfrogDriveBase
 import java.util.function.DoubleSupplier
 
 
-@TeleOp(name = "Swerve Initial Test", group = "none")
-public class LeapfrogInitialTestOpmode() : CommandOpMode() {
+@TeleOp(name = "Leapfrog Drive Motor Test", group = "none")
+public class LeapfrogDriveMotorTestOpmode() : CommandOpMode() {
 
     override fun initialize() {
 
         // let's get the drive motors
-        var fL = MotorEx(hardwareMap, "frontLeftDrive", Motor.GoBILDA.BARE)
-        var fR = MotorEx(hardwareMap, "frontRightDrive", Motor.GoBILDA.BARE)
-        var bL = MotorEx(hardwareMap, "backLeftDrive", Motor.GoBILDA.BARE)
-        var bR = MotorEx(hardwareMap, "backRightDrive", Motor.GoBILDA.BARE)
+        val fL = MotorEx(hardwareMap, "frontLeftDrive", Motor.GoBILDA.BARE)
+        val fR = MotorEx(hardwareMap, "frontRightDrive", Motor.GoBILDA.BARE)
+        val bL = MotorEx(hardwareMap, "backLeftDrive", Motor.GoBILDA.BARE)
+        val bR = MotorEx(hardwareMap, "backRightDrive", Motor.GoBILDA.BARE)
 
         val leapfrogDrive = LeapfrogDriveBase(fL, fR, bL, bR);
         val driverOp = GamepadEx(gamepad1);
