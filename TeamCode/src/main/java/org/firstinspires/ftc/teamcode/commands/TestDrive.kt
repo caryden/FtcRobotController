@@ -11,8 +11,4 @@ class TestDrive(private val leapfrog : LeapfrogDriveBase, private val forward : 
     override fun execute() {
         leapfrog.drive(forward.asDouble)
     }
-
-    override fun end(interrupted: Boolean) {
-        super.end(interrupted)
-    }
 }
