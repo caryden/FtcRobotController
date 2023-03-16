@@ -21,11 +21,11 @@ public class LeapfrogDriveMotorTestOpmode() : CommandOpMode() {
         val bL = MotorEx(hardwareMap, "backLeftDrive", Motor.GoBILDA.BARE)
         val bR = MotorEx(hardwareMap, "backRightDrive", Motor.GoBILDA.BARE)
 
-        val leapfrogDrive = LeapfrogDriveBase(fL, fR, bL, bR);
-        val driverOp = GamepadEx(gamepad1);
-        val command = TestDrive(leapfrogDrive, DoubleSupplier { driverOp.leftY });
+//        val leapfrogDrive = LeapfrogDriveBase(fL, fR, bL, bR);
+//        val driverOp = GamepadEx(gamepad1);
+//        val command = TestDrive(leapfrogDrive, DoubleSupplier { driverOp.leftY });
 
-        schedule(command);
+//        schedule(command);
     }
 
 
