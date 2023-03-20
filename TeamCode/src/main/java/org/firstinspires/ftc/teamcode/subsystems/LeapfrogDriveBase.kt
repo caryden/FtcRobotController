@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.arcrobotics.ftclib.command.SubsystemBase
-import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.geometry.Translation2d
 import com.arcrobotics.ftclib.hardware.motors.CRServo
-import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
-import com.arcrobotics.ftclib.hardware.motors.MotorGroup
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.AnalogInput
 
 class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
@@ -32,23 +29,28 @@ class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
 
     // The kinematics object that converts between chassis speeds and module states
     private val kinematics = SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation)
-    private val frontLeftSwerveModule = SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle)
-    private val frontRightSwerveModule = SwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle)
-    private val backLeftSwerveModule = SwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle)
-    private val backRightSwerveModule = SwerveModule(backRightDrive, backRightServo, backRightServoAngle)
 
+    // The swerve modules
+    private val frontLeftSwerveModule = LeapfrogSwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle)
+    private val frontRightSwerveModule = LeapfrogSwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle)
+    private val backLeftSwerveModule = LeapfrogSwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle)
+    private val backRightSwerveModule = LeapfrogSwerveModule(backRightDrive, backRightServo, backRightServoAngle)
 
-    fun drive(forward : Double) {
+    fun drive(chassisSpeeds: ChassisSpeeds) {
+        // Convert the desired chassis speeds into module states
+        val moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds)
 
-    }
-    fun stop() {
-        frontLeftSwerveModule.setSwerveModuleState(SwerveModuleState(0.0, Rotation2d()))
+        // Set the module states
+        frontLeftSwerveModule.moduleState = moduleStates[0]
+        frontRightSwerveModule.moduleState = moduleStates[1]
+        backLeftSwerveModule.moduleState = moduleStates[2]
+        backRightSwerveModule.moduleState = moduleStates[3]
     }
     fun init() {
         // this will assume that all modules are point forward (+x) and will assign this the 0 degree position
-        frontLeftSwerveModule.init()
-        frontRightSwerveModule.init()
-        backLeftSwerveModule.init()
-        backRightSwerveModule.init()
+        frontLeftSwerveModule.initialize().startControlLoop()
+        frontRightSwerveModule.initialize().startControlLoop()
+        backLeftSwerveModule.initialize().startControlLoop()
+        backRightSwerveModule.initialize().startControlLoop()
     }
 }
