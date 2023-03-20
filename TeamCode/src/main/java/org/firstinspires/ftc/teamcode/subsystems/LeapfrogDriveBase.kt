@@ -36,6 +36,11 @@ class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
     private val backLeftSwerveModule = LeapfrogSwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle)
     private val backRightSwerveModule = LeapfrogSwerveModule(backRightDrive, backRightServo, backRightServoAngle)
 
+    init {
+        // invert the left drive motors
+        frontLeftSwerveModule.invertedDriveMotor = true
+        backLeftSwerveModule.invertedDriveMotor = true
+    }
     fun drive(chassisSpeeds: ChassisSpeeds) {
         // Convert the desired chassis speeds into module states
         val moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds)
@@ -46,8 +51,9 @@ class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
         backLeftSwerveModule.moduleState = moduleStates[2]
         backRightSwerveModule.moduleState = moduleStates[3]
     }
-    fun init() {
+    fun initialize() {
         // this will assume that all modules are point forward (+x) and will assign this the 0 degree position
+        // to be called in the opmode initialize() method
         frontLeftSwerveModule.initialize().startControlLoop()
         frontRightSwerveModule.initialize().startControlLoop()
         backLeftSwerveModule.initialize().startControlLoop()

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.arcrobotics.ftclib.controller.PIDController
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.qualcomm.robotcore.hardware.AnalogInput
@@ -10,7 +11,7 @@ import kotlin.math.min
 import kotlin.math.sign
 
 class LeapfrogTurnServo(private val turnMotor: CRServo, private val angleAnalogInput: AnalogInput, private val dispatcher: CoroutineDispatcher = Dispatchers.Default) {
-    private val turnPIDController = PIDController(10.0, 0.0, 0.0)
+    private val turnPIDController = PIDController(5.0, 0.0, 0.0)
 
     private var servoWrapAngleOffset = 0.0
     private var servoAngleOffset = 0.0
@@ -44,6 +45,7 @@ class LeapfrogTurnServo(private val turnMotor: CRServo, private val angleAnalogI
     private fun runTurnMotorPID()  {
         val unwrappedServoAngle = getUnwrappedServoAngle()
         val newWrappedServoAngle =  servoWrapAngleOffset + unwrappedServoAngle
+        val telemetry = FtcDashboard.getInstance().telemetry
 
         // if the new angle is more than pi radians away from the current angle, add or subtract 2pi radians to the offset
         // this is handle the wrapping of the servo angle due to the servo gear ratio
@@ -58,6 +60,12 @@ class LeapfrogTurnServo(private val turnMotor: CRServo, private val angleAnalogI
         // note that we are using the currentModuleAngle as the measured angle, and swerveModuleState.angle as the desired angle
         val turnMotorPower = max(-1.0, min(1.0, turnPIDController.calculate(currentModuleAngle, targetModuleAngle)))
         turnMotor.set(turnMotorPower)
+
+        telemetry.addData("unwrappedServoAngle", unwrappedServoAngle)
+        telemetry.addData("currentWrappedServoAngle", currentWrappedServoAngle)
+        telemetry.addData("currentModuleAngle", currentModuleAngle)
+        telemetry.addData("targetModuleAngle", targetModuleAngle)
+        telemetry.update()
     }
     private fun getUnwrappedServoAngle(): Double {
         return angleAnalogInput.voltage/angleAnalogInput.maxVoltage * 2 * Math.PI - servoAngleOffset

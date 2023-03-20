@@ -40,7 +40,7 @@ class LeapfrogTurnServoTests {
                 turnServoSpeed = max(min(power,1.0), -1.0) * turnMotorMaxRadiansPerSecond
 
                 // update the test voltage to match the turnServoAngle
-                whenever(analogInput.voltage).thenReturn(turnServoAngle / (2 * Math.PI) * maxAnalogInputVoltage)
+                val ans = whenever(analogInput.voltage).thenReturn(turnServoAngle / (2 * Math.PI) * maxAnalogInputVoltage)
 
                 println("turnServoAngle: $turnServoAngle, power: $power, turnServoSpeed: $turnServoSpeed, elapsedTime: $elapsedTime")
             }
@@ -54,7 +54,7 @@ class LeapfrogTurnServoTests {
 //        testDispatcher.scheduler.advanceTimeBy(1000)
 //        Assert.assertEquals(0.0, turnServo.moduleAngle, 0.0001)
 
-        val newModuleAngle = 0.5 * Math.PI
+        val newModuleAngle = 1.5 * Math.PI
         println("changing module angle to $newModuleAngle")
         turnServo.moduleAngle = newModuleAngle
         testDispatcher.scheduler.advanceTimeBy(10000)

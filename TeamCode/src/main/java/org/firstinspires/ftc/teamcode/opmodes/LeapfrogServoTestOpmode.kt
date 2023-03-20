@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.gamepad.GamepadEx
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.hardware.ServoEx
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup
@@ -32,7 +33,8 @@ class LeapfrogServoTestOpmode() : CommandOpMode(){
         val bRA = hardwareMap.get(AnalogInput::class.java,"backRightServoAngle")
 
         val driverOp = GamepadEx(gamepad1);
-        val command = TestPodServos(allServos, { driverOp.leftY}, fLA, fRA, bLA, bRA, telemetry)
+        val command = TestPodServos(allServos, fLA, fRA, bLA, bRA, telemetry) { Rotation2d(driverOp.leftY, driverOp.leftX) }
+
         schedule(command)
     }
 

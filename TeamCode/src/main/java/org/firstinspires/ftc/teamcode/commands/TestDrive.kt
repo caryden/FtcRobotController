@@ -9,9 +9,19 @@ class TestDrive(private val leapfrog : LeapfrogDriveBase, private val forward : 
     init {
         addRequirements(leapfrog);
     }
+
+    override fun initialize() {
+        super.initialize()
+        leapfrog.initialize()
+    }
     override fun execute() {
         // just drive forward/back +/- X-direction
         val chassisSpeeds = ChassisSpeeds(forward.asDouble, 0.0, 0.0)
         leapfrog.drive(chassisSpeeds)
+    }
+
+    override fun end(interrupted: Boolean) {
+        super.end(interrupted)
+        // TODO: stop the drivebase to end the turnServo Coroutines
     }
 }

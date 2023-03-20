@@ -18,7 +18,11 @@ class LeapfrogSwerveModule(private val driveMotor: MotorEx, private val turnServ
     private val wheelRevsPerMotorRev = 16.0 / 60.0 * 24.0 / 36.0 * 14.0 / 28.0
     private val wheelDiameter = 72.0 / 1000.0 // 72mm in meters
     private val wheelCircumference = wheelDiameter * Math.PI  // meters/wheel rev
-    val wheelMetersPerTick = wheelCircumference * wheelRevsPerMotorRev / driveMotor.cpr
+    private val wheelMetersPerTick = wheelCircumference * wheelRevsPerMotorRev / driveMotor.cpr
+
+    var invertedDriveMotor : Boolean
+        get() = driveMotor.inverted
+        set(value) { driveMotor.inverted = value}
 
     /// The angle of the turn servo in radians
     val turnServoAngle : Double
