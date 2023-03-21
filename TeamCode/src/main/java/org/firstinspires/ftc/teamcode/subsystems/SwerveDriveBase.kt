@@ -1,25 +1,27 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.arcrobotics.ftclib.command.SubsystemBase
+import com.arcrobotics.ftclib.drivebase.MecanumDrive
 import com.arcrobotics.ftclib.geometry.Translation2d
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.qualcomm.robotcore.hardware.AnalogInput
+import java.util.function.DoubleToLongFunction
 
-class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
-                        private val frontRightDrive : MotorEx,
-                        private val backLeftDrive : MotorEx,
-                        private val backRightDrive : MotorEx,
-                        private val frontLeftServo : CRServo,
-                        private val frontRightServo : CRServo,
-                        private val backLeftServo : CRServo,
-                        private val backRightServo : CRServo,
-                        private val frontLeftServoAngle : AnalogInput,
-                        private val frontRightServoAngle : AnalogInput,
-                        private val backLeftServoAngle : AnalogInput,
-                        private val backRightServoAngle : AnalogInput) : SubsystemBase() {
+class SwerveDriveBase(private val frontLeftDrive : MotorEx,
+                      private val frontRightDrive : MotorEx,
+                      private val backLeftDrive : MotorEx,
+                      private val backRightDrive : MotorEx,
+                      private val frontLeftServo : CRServo,
+                      private val frontRightServo : CRServo,
+                      private val backLeftServo : CRServo,
+                      private val backRightServo : CRServo,
+                      private val frontLeftServoAngle : AnalogInput,
+                      private val frontRightServoAngle : AnalogInput,
+                      private val backLeftServoAngle : AnalogInput,
+                      private val backRightServoAngle : AnalogInput) : SubsystemBase() {
 
     // The locations of the swerve modules relative to the robot center (measurements in meters, taken from OnShape)
     private val frontLeftLocation = Translation2d(0.132665, 0.132665)
@@ -31,10 +33,10 @@ class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
     private val kinematics = SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation)
 
     // The swerve modules
-    private val frontLeftSwerveModule = LeapfrogSwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle)
-    private val frontRightSwerveModule = LeapfrogSwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle)
-    private val backLeftSwerveModule = LeapfrogSwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle)
-    private val backRightSwerveModule = LeapfrogSwerveModule(backRightDrive, backRightServo, backRightServoAngle)
+    private val frontLeftSwerveModule = SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle)
+    private val frontRightSwerveModule = SwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle)
+    private val backLeftSwerveModule = SwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle)
+    private val backRightSwerveModule = SwerveModule(backRightDrive, backRightServo, backRightServoAngle)
 
     init {
         // invert the left drive motors
@@ -54,9 +56,22 @@ class LeapfrogDriveBase(private val frontLeftDrive : MotorEx,
     fun initialize() {
         // this will assume that all modules are point forward (+x) and will assign this the 0 degree position
         // to be called in the opmode initialize() method
-        frontLeftSwerveModule.initialize().startControlLoop()
-        frontRightSwerveModule.initialize().startControlLoop()
-        backLeftSwerveModule.initialize().startControlLoop()
-        backRightSwerveModule.initialize().startControlLoop()
+        frontLeftSwerveModule.initialize()
+        frontRightSwerveModule.initialize()
+        backLeftSwerveModule.initialize()
+        backRightSwerveModule.initialize()
     }
+    fun startControlLoop() {
+        frontLeftSwerveModule.startControlLoop()
+        frontRightSwerveModule.startControlLoop()
+        backLeftSwerveModule.startControlLoop()
+        backRightSwerveModule.startControlLoop()
+    }
+    fun stopControlLoop() {
+        frontLeftSwerveModule.stopControlLoop()
+        frontRightSwerveModule.stopControlLoop()
+        backLeftSwerveModule.stopControlLoop()
+        backRightSwerveModule.stopControlLoop()
+    }
+
 }

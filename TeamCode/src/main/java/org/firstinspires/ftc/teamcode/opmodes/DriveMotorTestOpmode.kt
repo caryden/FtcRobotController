@@ -5,16 +5,15 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
-import com.arcrobotics.ftclib.hardware.motors.MotorGroup
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.AnalogInput
 import org.firstinspires.ftc.teamcode.commands.TestDrive
-import org.firstinspires.ftc.teamcode.subsystems.LeapfrogDriveBase
+import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveBase
 import java.util.function.DoubleSupplier
 
 
 @TeleOp(name = "Leapfrog Drive Motor Test", group = "none")
-public class LeapfrogDriveMotorTestOpmode() : CommandOpMode() {
+public class DriveMotorTestOpmode() : CommandOpMode() {
 
     override fun initialize() {
 
@@ -36,7 +35,7 @@ public class LeapfrogDriveMotorTestOpmode() : CommandOpMode() {
         val backRightAnalogInput = hardwareMap.get(AnalogInput::class.java,"backRightServoAngle")
 
 
-        val leapfrogDrive = LeapfrogDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
+        val leapfrogDrive = SwerveDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
                                 frontLeftCRServo, frontRightCRServo, backLeftCRServo, backRightCRServo,
                                 frontLeftAnalogInput, frontRightAnalogInput, backLeftAnalogInput, backRightAnalogInput)
         val driverOp = GamepadEx(gamepad1);

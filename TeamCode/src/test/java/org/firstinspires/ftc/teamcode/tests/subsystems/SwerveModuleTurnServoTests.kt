@@ -2,22 +2,16 @@ package org.firstinspires.ftc.teamcode.tests.subsystems
 
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.qualcomm.robotcore.hardware.AnalogInput
-import com.qualcomm.robotcore.util.ElapsedTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.firstinspires.ftc.teamcode.subsystems.LeapfrogTurnServo
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.*
-import org.opencv.core.Mat
-import java.util.Random
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sign
 
-class LeapfrogTurnServoTests {
+class SwerveModuleTurnServoTests {
     private val maxAnalogInputVoltage = 3.3
     @Volatile private var turnServoAngle = 1.1/ maxAnalogInputVoltage * 2 * Math.PI
 

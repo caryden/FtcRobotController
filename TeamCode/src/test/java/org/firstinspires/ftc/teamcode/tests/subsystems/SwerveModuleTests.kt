@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput
 import org.junit.Test
 import org.mockito.kotlin.*
 
-class LeapforgSwerveModuleTests {
+class SwerveModuleTests {
 
     @Test
     fun initialize() {
