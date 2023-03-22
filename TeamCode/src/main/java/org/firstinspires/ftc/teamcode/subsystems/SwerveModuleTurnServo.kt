@@ -1,57 +1,67 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.controller.PIDController
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.qualcomm.robotcore.hardware.AnalogInput
-import kotlinx.coroutines.*
+import org.firstinspires.ftc.teamcode.utils.clamp
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sign
 
-class LeapfrogTurnServo(private val turnMotor: CRServo, private val angleAnalogInput: AnalogInput, private val dispatcher: CoroutineDispatcher = Dispatchers.Default) {
-    private val turnPIDController = PIDController(-0.01, 0.0, 0.0)
+class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAnalogInput: AnalogInput) : SubsystemBase() {
+    private val turnPIDController = PIDController(3.0, 0.0, 0.0)
 
     private var servoWrapAngleOffset = 0.0
     private var currentWrappedServoAngle = 0.0
 
     private var currentModuleAngle = 0.0
-    @Volatile
     private var targetModuleAngle = 0.0
 
     private var initialized = false
     private var initialModuleAngle = 0.0
     private val gearRatio = 24.0/60.0
-
-    private var scope = CoroutineScope(dispatcher)
-
+    val turnPIDAngleTolerance = 2 * Math.PI / 360.0 / 2 // 1/2 degree tolerance for the PID controller
+    init {
+        turnPIDController.setTolerance(turnPIDAngleTolerance)
+        // register this subsystem with the command scheduler so that the periodic method is called
+        register()
+    }
     var moduleAngle : Double
         get() = currentModuleAngle
         set(value) {
             targetModuleAngle = value
         }
-
+    private var _atSetPoint = false
+    val atSetPoint : Boolean
+        get() { return _atSetPoint }
     fun initialize() {
-        initialModuleAngle = currentWrappedServoAngle * gearRatio
+        servoWrapAngleOffset = 0.0
+        updateCurrentModuleAngle()
+        initialModuleAngle = currentModuleAngle
+        currentModuleAngle = 0.0
         initialized = true
     }
-    fun startControlLoop() {
-        if(!scope.isActive) {
-            scope.launch {
-                while (isActive) {
-                    runTurnMotorPID()
-                    delay(20)
-                }
-                turnMotor.set(0.0)
-            }
-        }
+    override fun periodic() {
+           if (initialized) {
+
+               // update the current module angle
+               updateCurrentModuleAngle()
+
+               // calculate the difference between the current angle and the target angle and normalize it to be between -180 and 180
+               val angleDifference = (currentModuleAngle - targetModuleAngle + Math.PI) % (2 * Math.PI) - Math.PI
+
+               // now run the PID controller to turn the module to the target angle
+               val pidOutput = turnPIDController.calculate(angleDifference, 0.0)
+               val turnMotorPower = pidOutput.clamp(-1.0,1.0)
+
+               _atSetPoint = turnPIDController.atSetPoint()
+               if(!_atSetPoint)
+                   turnMotor.set(turnMotorPower)
+               else
+                   turnMotor.set(0.0)
+           }
     }
-    fun stopControlLoop() {
-        if(scope.isActive) {
-            scope.cancel()
-        }
-    }
-    private fun runTurnMotorPID()  {
+    private fun updateCurrentModuleAngle() {
         val unwrappedServoAngle = getUnwrappedServoAngle()
         val newWrappedServoAngle =  servoWrapAngleOffset + unwrappedServoAngle
 
@@ -59,13 +69,9 @@ class LeapfrogTurnServo(private val turnMotor: CRServo, private val angleAnalogI
         // this is handle the wrapping of the servo angle due to the servo gear ratio
         if (abs(newWrappedServoAngle - currentWrappedServoAngle) > Math.PI)
             servoWrapAngleOffset += 2 * Math.PI * -sign(newWrappedServoAngle - currentWrappedServoAngle)
+
         currentWrappedServoAngle = servoWrapAngleOffset + unwrappedServoAngle
-
         currentModuleAngle = (currentWrappedServoAngle * gearRatio - initialModuleAngle) % (2 * Math.PI)
-
-        // calculate the difference between the current angle and the target angle and normalize it to be between -180 and 180
-        val angleDifference = (currentModuleAngle - targetModuleAngle + Math.PI) % (2 * Math.PI) - Math.PI
-        val turnMotorPower = max(-1.0, min(1.0, turnPIDController.calculate(angleDifference, 0.0)))
     }
     private fun getUnwrappedServoAngle(): Double {
         return angleAnalogInput.voltage/angleAnalogInput.maxVoltage * 2 * Math.PI

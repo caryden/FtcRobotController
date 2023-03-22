@@ -9,20 +9,12 @@ class TestDrive(private val leapfrog : SwerveDriveBase, private val forward : Do
     init {
         addRequirements(leapfrog);
     }
-
     override fun initialize() {
-        super.initialize()
-        leapfrog.initialize()
-        leapfrog.startControlLoop()
+          leapfrog.initialize()
     }
     override fun execute() {
         // just drive forward/back +/- X-direction
         val chassisSpeeds = ChassisSpeeds(forward.asDouble, 0.0, 0.0)
         leapfrog.drive(chassisSpeeds)
-    }
-
-    override fun end(interrupted: Boolean) {
-        super.end(interrupted)
-        leapfrog.stopControlLoop()
     }
 }

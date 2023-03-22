@@ -8,28 +8,21 @@ import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveBase
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
+import org.mockito.ArgumentMatcher
+import org.mockito.kotlin.*
 import java.util.function.DoubleSupplier
 
 class TestDriveTests {
-
-    @Before
-    fun setUp() {
-    }
-
-    @After
-    fun tearDown() {
-    }
 
     @Test
     fun execute() {
         val forwardValue = 0.5;
         val chassisSpeeds = ChassisSpeeds(forwardValue, 0.0, 0.0)
 
-        val leapfrogDriveBase = Mockito.mock<SwerveDriveBase>()
+        val leapfrogDriveBase = mock<SwerveDriveBase>()
+
         val testDrive = TestDrive(leapfrogDriveBase, DoubleSupplier { forwardValue })
         testDrive.execute()
-//        verify(leapfrogDriveBase).drive(chassisSpeeds)
+        verify(leapfrogDriveBase).drive(argThat { this.vxMetersPerSecond == chassisSpeeds.vxMetersPerSecond })
     }
-
 }

@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.tests.subsystems
 
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.qualcomm.robotcore.hardware.AnalogInput
-import kotlinx.coroutines.test.StandardTestDispatcher
-import org.firstinspires.ftc.teamcode.subsystems.LeapfrogTurnServo
-import org.junit.Assert
+import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveConfiguration
+import org.firstinspires.ftc.teamcode.subsystems.SwerveModuleTurnServo
+import org.firstinspires.ftc.teamcode.utils.clamp
+import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.*
@@ -12,50 +14,56 @@ import kotlin.math.max
 import kotlin.math.min
 
 class SwerveModuleTurnServoTests {
-    private val maxAnalogInputVoltage = 3.3
-    @Volatile private var turnServoAngle = 1.1/ maxAnalogInputVoltage * 2 * Math.PI
+    val maxAnalogInputVoltage = 3.3
 
-    @Test
-    fun initialize() {
-        val axonMaxPlusAt6VSecondsPer60Degrees = 0.115
-        val turnMotorMaxRadiansPerSecond = (60.0 / axonMaxPlusAt6VSecondsPer60Degrees) * (2 * Math.PI  / 360.0)
-        var turnServoSpeed  = 0.0
-
-        val analogInput = mock<AnalogInput>() {
-            on { maxVoltage } doReturn maxAnalogInputVoltage
-            on { voltage } doReturn  turnServoAngle / (2 * Math.PI) * maxAnalogInputVoltage
-        }
-
-        val turnMotor = mock<CRServo>() {
-            on { set(ArgumentMatchers.anyDouble()) } doAnswer {
-                val power = it.getArgument<Double>(0)
-                val elapsedTime = 20e-3 // this needs to match the delay used in the pid loop
-                turnServoAngle = wrapAngle(turnServoAngle + (turnServoSpeed * elapsedTime))
-                turnServoSpeed = max(min(power,1.0), -1.0) * turnMotorMaxRadiansPerSecond
-
-                // update the test voltage to match the turnServoAngle
-                val ans = whenever(analogInput.voltage).thenReturn(turnServoAngle / (2 * Math.PI) * maxAnalogInputVoltage)
-
-                println("turnServoAngle: $turnServoAngle, power: $power, turnServoSpeed: $turnServoSpeed, elapsedTime: $elapsedTime")
-            }
-        }
-
-
-        val testDispatcher = StandardTestDispatcher()
-        val turnServo = LeapfrogTurnServo(turnMotor, analogInput, testDispatcher)
-        turnServo.initialize()
-        turnServo.startControlLoop()
-//        testDispatcher.scheduler.advanceTimeBy(1000)
-//        Assert.assertEquals(0.0, turnServo.moduleAngle, 0.0001)
-
-        val newModuleAngle = 1.5 * Math.PI
-        println("changing module angle to $newModuleAngle")
-        turnServo.moduleAngle = newModuleAngle
-        testDispatcher.scheduler.advanceTimeBy(10000)
-        Assert.assertEquals(newModuleAngle, turnServo.moduleAngle, 0.0001)
-
+    // note that drReturn sets a constant value for the return value of the function,
+    // doAnswer allows you to set a function that will be called when the function is called
+    val analogInput = mock<AnalogInput>() {
+        on { maxVoltage } doReturn maxAnalogInputVoltage
+        on { voltage } doAnswer { turnServoAngle / (2 * Math.PI) * maxAnalogInputVoltage }
     }
 
+    var turnServoSpeed  = 0.0
+    var turnServoAngle = 1.1/ maxAnalogInputVoltage * 2 * Math.PI
+
+    val turnMotor = mock<CRServo>() {
+        on { set(ArgumentMatchers.anyDouble()) } doAnswer {
+            val power = it.getArgument<Double>(0)
+            val elapsedTime = 20e-3 // this needs to match the loop time (roughly)
+
+            // update the servo angle basedon the preceding speed and elapsed time
+            turnServoAngle = wrapAngle(turnServoAngle + (turnServoSpeed * elapsedTime))
+
+            // then update the speed
+            turnServoSpeed = power.clamp(-1.0,1.0) * SwerveDriveConfiguration.maxAngularSpeed
+        }
+    }
+
+
+    @Test
+    fun initialize_should_zero_module_angle() {
+        val swerveModuleTurnServo = SwerveModuleTurnServo(turnMotor, analogInput)
+        swerveModuleTurnServo.initialize()
+        assertEquals(0.0, swerveModuleTurnServo.moduleAngle, 1e-6)
+    }
+
+    @Test
+    fun update_module_angle_and_calling_periodic_should_run_the_pid_controller() {
+        val swerveModuleTurnServo = SwerveModuleTurnServo(turnMotor, analogInput)
+        swerveModuleTurnServo.initialize()
+
+        val targetModuleAngle = Math.PI
+        swerveModuleTurnServo.moduleAngle = targetModuleAngle
+
+        // call periodic here simulates the scheduler calling periodic to run the PID controller
+        var maxLoops = 1000
+        while (!swerveModuleTurnServo.atSetPoint && --maxLoops > 0) {
+            swerveModuleTurnServo.periodic()
+            println("targerModuleAngle: $targetModuleAngle, moduleAngle: ${swerveModuleTurnServo.moduleAngle}, turnServoAngle: $turnServoAngle")
+        }
+
+        assertEquals(targetModuleAngle, swerveModuleTurnServo.moduleAngle, swerveModuleTurnServo.turnPIDAngleTolerance)
+    }
 
     private fun wrapAngle(angle: Double) : Double {
         return (2 * Math.PI + angle) % (2 * Math.PI )

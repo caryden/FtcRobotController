@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.acmerobotics.dashboard.FtcDashboard
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.Motor
@@ -8,31 +9,16 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.AnalogInput
 
-class SwerveModule(private val driveMotor: MotorEx, private val turnServo: LeapfrogTurnServo) {
-   constructor(driveMotor: MotorEx, turnMotor: CRServo, angleAnalogInput: AnalogInput) : this(driveMotor, LeapfrogTurnServo(turnMotor, angleAnalogInput))
+class SwerveModule(private val swerveDriveMotor : SwerveModuleDriveMotor,
+                   private val turnServo: SwerveModuleTurnServo) : SubsystemBase() {
+   constructor(driveMotor: MotorEx, turnMotor: CRServo, angleAnalogInput: AnalogInput) :
+           this(SwerveModuleDriveMotor(driveMotor), SwerveModuleTurnServo(turnMotor, angleAnalogInput))
     init {
-        driveMotor.setRunMode(Motor.RunMode.VelocityControl)
+        // register so tha the command scheduler can call periodic() where we update the drive motor
+        register()
         initialize()
     }
-
     private var swerveModuleState: SwerveModuleState = SwerveModuleState(0.0, Rotation2d(0.0))
-    private val wheelRevsPerMotorRev = SwerveDriveConfiguration.wheelRevsPerMotorRev
-    private val wheelDiameter = SwerveDriveConfiguration.wheelDiameter
-    private val wheelCircumference = SwerveDriveConfiguration.wheelCircumference
-    private val wheelMetersPerTick = SwerveDriveConfiguration.getWheelMetersPerTick(driveMotor.cpr)
-
-    var invertedDriveMotor : Boolean
-        get() = driveMotor.inverted
-        set(value) { driveMotor.inverted = value}
-
-    /// The angle of the turn servo in radians
-    val turnServoAngle : Double
-        get() = turnServo.moduleAngle
-
-    /// The velocity at the wheel in meters/second
-    val wheelVelocity : Double
-        get() = driveMotor.velocity * wheelMetersPerTick
-
     var moduleState : SwerveModuleState
         get() = swerveModuleState
         set(value) {
@@ -53,32 +39,21 @@ class SwerveModule(private val driveMotor: MotorEx, private val turnServo: Leapf
             _isTurnServoEnabled = value
             updateMotors()
         }
+    val driveMotor: SwerveModuleDriveMotor get() = swerveDriveMotor
+    val turnMotor: SwerveModuleTurnServo get() = turnServo
+
     fun initialize() {
         turnServo.initialize()
     }
-    fun startControlLoop() {
-        turnServo.startControlLoop()
-    }
-    fun stopControlLoop() {
-        turnServo.stopControlLoop()
-    }
     private fun updateMotors() {
         if(_isDriveMotorEnabled)
-            driveMotor.velocity = swerveModuleState.speedMetersPerSecond / wheelMetersPerTick
+            swerveDriveMotor.velocity = swerveModuleState.speedMetersPerSecond
         else
-            driveMotor.velocity = 0.0
+            swerveDriveMotor.velocity = 0.0
 
         if(_isTurnServoEnabled) {
             turnServo.moduleAngle = swerveModuleState.angle.radians
-            turnServo.startControlLoop()
-        }
-        else {
-            turnServo.stopControlLoop()
-        }
-
-        FtcDashboard.getInstance().telemetry.addData("driveMotor.velocity:",driveMotor.velocity)
-        FtcDashboard.getInstance().telemetry.addData("turnServo.moduleAngle:",turnServo.moduleAngle)
-        FtcDashboard.getInstance().telemetry.update()
+       }
     }
 
 }
