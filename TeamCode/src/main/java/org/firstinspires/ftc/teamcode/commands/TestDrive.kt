@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands
 
 import com.arcrobotics.ftclib.command.CommandBase
+import com.arcrobotics.ftclib.geometry.Pose2d
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveBase
 import java.util.function.DoubleSupplier
@@ -10,7 +12,7 @@ class TestDrive(private val leapfrog : SwerveDriveBase, private val forward : Do
         addRequirements(leapfrog);
     }
     override fun initialize() {
-          leapfrog.initialize()
+          leapfrog.initialize(Pose2d(0.0, 0.0, Rotation2d(0.0)))
     }
     override fun execute() {
         // just drive forward/back +/- X-direction

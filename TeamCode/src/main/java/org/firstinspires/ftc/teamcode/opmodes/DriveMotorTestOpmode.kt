@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes
 
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.gamepad.GamepadEx
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
@@ -37,7 +38,7 @@ public class DriveMotorTestOpmode() : CommandOpMode() {
 
         val leapfrogDrive = SwerveDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
                                 frontLeftCRServo, frontRightCRServo, backLeftCRServo, backRightCRServo,
-                                frontLeftAnalogInput, frontRightAnalogInput, backLeftAnalogInput, backRightAnalogInput)
+                                frontLeftAnalogInput, frontRightAnalogInput, backLeftAnalogInput, backRightAnalogInput) { Rotation2d(0.0) }
         val driverOp = GamepadEx(gamepad1);
         val command = TestDrive(leapfrogDrive, DoubleSupplier { driverOp.leftY });
 

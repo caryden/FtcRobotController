@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.gamepad.GamepadEx
+import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.hardware.RevIMU
 import com.arcrobotics.ftclib.hardware.motors.CRServo
@@ -45,40 +46,25 @@ class FieldRelativeDriveOpMode() : CommandOpMode()  {
         val frontRightAnalogInput = hardwareMap.get(AnalogInput::class.java, "frontRightServoAngle")
         val backLeftAnalogInput = hardwareMap.get(AnalogInput::class.java,"backLeftServoAngle")
         val backRightAnalogInput = hardwareMap.get(AnalogInput::class.java,"backRightServoAngle")
-
-        // and now the swerve drive base
-        val leapfrogDrive = SwerveDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
-            frontLeftCRServo, frontRightCRServo, backLeftCRServo, backRightCRServo,
-            frontLeftAnalogInput, frontRightAnalogInput, backLeftAnalogInput, backRightAnalogInput)
-
-        // This is the built-in IMU in the REV hub.
-        // We're initializing it by its default parameters
-        // and name in the config ('imu'). The orientation
-        // of the hub is important. Below is a model
-        // of the REV Hub and the orientation axes for the IMU.
-        //
-        //                           | Z axis
-        //                           |
-        //     (Motor Port Side)     |   / X axis
-        //                       ____|__/____
-        //          Y axis     / *   | /    /|   (IO Side)
-        //          _________ /______|/    //      I2C
-        //                   /___________ //     Digital
-        //                  |____________|/      Analog
-        //
-        //                 (Servo Port Side)
-        //
         val imu = hardwareMap.get("imu") as IMU
         val imuParameters = IMU.Parameters(RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP,
                                                                     RevHubOrientationOnRobot.UsbFacingDirection.RIGHT))
         imu.initialize(imuParameters)
         imu.resetYaw()
-
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
+        // and now the swerve drive base
+        var gyroAngleProvider = {
+            Rotation2d(imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS))
+        }
+        val leapfrogDrive = SwerveDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
+            frontLeftCRServo, frontRightCRServo, backLeftCRServo, backRightCRServo,
+            frontLeftAnalogInput, frontRightAnalogInput, backLeftAnalogInput, backRightAnalogInput, gyroAngleProvider)
 
         // Now create the command
         val driverOp = GamepadEx(gamepad1);
-        val command = SwerveDrive(leapfrogDrive) {
+        val iniitalPose = Pose2d(0.0, 0.0, gyroAngleProvider())
+        val command = SwerveDrive(leapfrogDrive, iniitalPose) {
             val vxMetersPerSecond = driverOp.leftX * SwerveDriveConfiguration.maxWheelSpeed
             val vyMetersPerSecond = driverOp.leftY * SwerveDriveConfiguration.maxWheelSpeed
             val omegaRadiansPerSecond = driverOp.rightY * SwerveDriveConfiguration.maxAngularSpeed
