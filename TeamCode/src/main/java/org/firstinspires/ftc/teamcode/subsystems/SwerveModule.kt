@@ -15,7 +15,6 @@ class SwerveModule(private val swerveDriveMotor : SwerveModuleDriveMotor,
            this(SwerveModuleDriveMotor(driveMotor), SwerveModuleTurnServo(turnMotor, angleAnalogInput))
     init {
         // register so tha the command scheduler can call periodic() where we update the drive motor
-        register()
         initialize()
     }
     private var swerveModuleState: SwerveModuleState = SwerveModuleState(0.0, Rotation2d(0.0))

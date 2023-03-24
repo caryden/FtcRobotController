@@ -36,7 +36,7 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
     // The kinematics object that converts between chassis speeds and module states
     private val kinematics = SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation)
     private val swerveModules = arrayOf(frontLeftSwerveModule, frontRightSwerveModule, backLeftSwerveModule, backRightSwerveModule)
-    private val swerveOdometry = com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveOdometry(kinematics, Rotation2d(0.0))
+    private val swerveOdometry = com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveOdometry(kinematics, gyroAngleProvider())
     private var moduleStates = kinematics.toSwerveModuleStates(ChassisSpeeds(0.0, 0.0, 0.0))
 
     init {
