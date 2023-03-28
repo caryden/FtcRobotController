@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
@@ -9,6 +11,7 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.qualcomm.robotcore.hardware.AnalogInput
+import java.lang.Math.cos
 
 class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
                       frontRightSwerveModule : SwerveModule,
@@ -32,6 +35,7 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
     private val frontRightLocation = Translation2d(0.132665, -0.132665)
     private val backLeftLocation = Translation2d(-0.132665, 0.132665)
     private val backRightLocation = Translation2d(-0.132665, -0.132665)
+    private val dashboard = FtcDashboard.getInstance()
 
     // The kinematics object that converts between chassis speeds and module states
     private val kinematics = SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation)
@@ -51,6 +55,7 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
         // get the current time in seconds
         val currentTime = System.currentTimeMillis() / 1000.0
         swerveOdometry.updateWithTime(currentTime, gyroAngleProvider(), moduleStates[0], moduleStates[1], moduleStates[2], moduleStates[3])
+        drawServoModules()
     }
     fun drive(chassisSpeeds: ChassisSpeeds) {
         // Convert the desired chassis speeds into module states
@@ -64,4 +69,57 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
         swerveModules.forEach { it.initialize() }
         swerveOdometry.resetPosition(initialPose, gyroAngleProvider())
      }
+
+    private fun drawServoModules(){
+        val x0 = 0.0
+        val y0 = 0.0
+        val xOffset = 30.0
+        val yOffset = 30.0
+        val radius = 10.0
+        val packet = TelemetryPacket()
+
+        packet
+            .fieldOverlay()
+            // frontLeft
+            .setStroke("green")
+            .strokeCircle(x0+xOffset,y0+yOffset, radius)
+            .strokeLine(x0+xOffset,y0+yOffset,
+                getXCoord(x0+xOffset, swerveModules[0].turnMotor.moduleAngle),
+                getYCoord(y0+yOffset, swerveModules[0].turnMotor.moduleAngle)
+            )
+
+            // frontRight
+            .setStroke("blue")
+            .strokeCircle(x0+xOffset,y0-yOffset, radius)
+            .strokeLine(x0+xOffset,y0-yOffset,
+                getXCoord(x0+xOffset, swerveModules[1].turnMotor.moduleAngle),
+                getYCoord(y0-yOffset, swerveModules[1].turnMotor.moduleAngle)
+            )
+
+            // backLeft
+            .setStroke("orange")
+            .strokeCircle(x0-xOffset,y0+yOffset, radius)
+            .strokeLine(x0-xOffset,y0+yOffset,
+                getXCoord(x0-xOffset, swerveModules[2].turnMotor.moduleAngle),
+                getYCoord(y0+yOffset, swerveModules[2].turnMotor.moduleAngle)
+            )
+
+            // backRight
+            .setStroke("purple")
+            .strokeCircle(x0-xOffset,y0-yOffset, radius)
+            .strokeLine(x0-xOffset,y0-yOffset,
+                getXCoord(x0-xOffset, swerveModules[3].turnMotor.moduleAngle),
+                getYCoord(y0-yOffset, swerveModules[3].turnMotor.moduleAngle)
+            )
+
+        dashboard.sendTelemetryPacket(packet)
+    }
+
+    private fun getXCoord(x:Double, angle:Double): Double {
+        return x + 10 * kotlin.math.cos(angle)
+    }
+
+    private fun getYCoord(y:Double, angle:Double):Double{
+        return y + 10 * kotlin.math.sin(angle)
+    }
 }
