@@ -14,13 +14,15 @@ class SwerveModuleDriveMotor(private val driveMotor: MotorEx) : SubsystemBase() 
         // TODO: Tune the velocity PID coefficients, and move them to the SwerveDriveConfiguration.
         //       We may need a different one for each swerveModule because each has a different friction.
         driveMotor.setRunMode(Motor.RunMode.VelocityControl)
-        driveMotor.setVeloCoefficients(0.05, 0.01, 0.31); // might want to move this to the SwerveDriveConfiguration
-        driveMotor.setDistancePerPulse(SwerveDriveConfiguration.wheelCircumference * SwerveDriveConfiguration.wheelRevsPerMotorRev / driveMotor.cpr)
+//        driveMotor.setVeloCoefficients(0.05, 0.01, 0.31); // might want to move this to the SwerveDriveConfiguration
+//        driveMotor.setDistancePerPulse(SwerveDriveConfiguration.wheelCircumference * SwerveDriveConfiguration.wheelRevsPerMotorRev / driveMotor.cpr)
     }
 
     var velocity : Double
         get() = driveMotor.velocity
-        set(value) { driveMotor.velocity = value}
+        set(value) {
+            driveMotor.set(value)
+        }
 
     var inverted : Boolean
         get() = driveMotor.inverted

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.geometry.Rotation2d
@@ -17,6 +19,7 @@ import java.util.function.DoubleSupplier
 public class DriveMotorTestOpmode() : CommandOpMode() {
 
     override fun initialize() {
+        val t:MultipleTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
         // let's get the drive motors
         val frontLeftDrive = MotorEx(hardwareMap, "frontLeftDrive", Motor.GoBILDA.BARE)
@@ -39,10 +42,11 @@ public class DriveMotorTestOpmode() : CommandOpMode() {
         val leapfrogDrive = SwerveDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
                                 frontLeftCRServo, frontRightCRServo, backLeftCRServo, backRightCRServo,
                                 frontLeftAnalogInput, frontRightAnalogInput, backLeftAnalogInput, backRightAnalogInput) { Rotation2d(0.0) }
-        val driverOp = GamepadEx(gamepad1);
-        val command = TestDrive(leapfrogDrive, DoubleSupplier { driverOp.leftY });
+        val driverOp = GamepadEx(gamepad1)
+        leapfrogDrive.setDefaultCommand(TestDrive(leapfrogDrive, DoubleSupplier { driverOp.leftY }, t))
 
-        schedule(command);
+
+
     }
 
 
