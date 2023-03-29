@@ -31,7 +31,7 @@ class SwerveModuleTurnServoTests {
             val power = it.getArgument<Double>(0)
             val elapsedTime = 20e-3 // this needs to match the loop time (roughly)
 
-            // update the servo angle basedon the preceding speed and elapsed time
+            // update the servo angle based on the preceding speed and elapsed time
             turnServoAngle = wrapAngle(turnServoAngle + (turnServoSpeed * elapsedTime))
 
             // then update the speed

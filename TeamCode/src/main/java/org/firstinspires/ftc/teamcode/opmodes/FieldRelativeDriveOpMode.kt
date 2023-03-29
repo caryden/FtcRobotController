@@ -65,8 +65,8 @@ class FieldRelativeDriveOpMode() : CommandOpMode()  {
         val driverOp = GamepadEx(gamepad1);
         val iniitalPose = Pose2d(0.0, 0.0, gyroAngleProvider())
         val command = SwerveDrive(leapfrogDrive, iniitalPose) {
-            val vxMetersPerSecond = driverOp.leftX * SwerveDriveConfiguration.maxWheelSpeed
-            val vyMetersPerSecond = driverOp.leftY * SwerveDriveConfiguration.maxWheelSpeed
+            val vxMetersPerSecond = driverOp.leftY * SwerveDriveConfiguration.maxWheelSpeed
+            val vyMetersPerSecond = driverOp.leftX * SwerveDriveConfiguration.maxWheelSpeed
             val omegaRadiansPerSecond = driverOp.rightY * SwerveDriveConfiguration.maxAngularSpeed
             val robotYawAngle = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
             val robotRotation2d = Rotation2d(robotYawAngle)

@@ -10,10 +10,10 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAnalogInput: AnalogInput) : SubsystemBase() {
-    private val turnPIDController = PIDController(-0.1, 0.0, 0.0)
+    private val turnPIDController = PIDController(-0.4, 0.0, 0.0)
 
     private var servoWrapAngleOffset = 0.0
-    private var currentWrappedServoAngle = 0.0
+    private var currentWrappedServoAngle = getUnwrappedServoAngle()
 
     private var currentModuleAngle = 0.0
     private var targetModuleAngle = 0.0
@@ -21,7 +21,7 @@ class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAna
     private var initialized = false
     private var initialModuleAngle = 0.0
     private val gearRatio = 24.0/60.0
-    val turnPIDAngleTolerance = 2 * Math.PI / 360.0 / 0.25 // 1/2 degree tolerance for the PID controller
+    val turnPIDAngleTolerance = 2 * Math.PI / 360.0 / 0.5 // 1/2 degree tolerance for the PID controller
     init {
         turnPIDController.setTolerance(turnPIDAngleTolerance)
         // register this subsystem with the command scheduler so that the periodic method is called
@@ -37,9 +37,10 @@ class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAna
         get() { return _atSetPoint }
     fun initialize() {
         servoWrapAngleOffset = 0.0
-        updateCurrentModuleAngle()
+        currentModuleAngle = getUnwrappedServoAngle() * gearRatio
         initialModuleAngle = currentModuleAngle
-        currentModuleAngle = 0.0
+
+        updateCurrentModuleAngle()
         initialized = true
     }
     override fun periodic() {

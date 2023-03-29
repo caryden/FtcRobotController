@@ -10,7 +10,9 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.AnalogInput
 
 class SwerveModule(private val swerveDriveMotor : SwerveModuleDriveMotor,
-                   private val turnServo: SwerveModuleTurnServo) : SubsystemBase() {
+                   private val turnServo: SwerveModuleTurnServo,
+
+) : SubsystemBase() {
    constructor(driveMotor: MotorEx, turnMotor: CRServo, angleAnalogInput: AnalogInput) :
            this(SwerveModuleDriveMotor(driveMotor), SwerveModuleTurnServo(turnMotor, angleAnalogInput))
     init {

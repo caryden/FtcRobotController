@@ -5,13 +5,14 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
-import com.arcrobotics.ftclib.geometry.Translation2d
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.AnalogInput
-import java.lang.Math.cos
+import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveConfiguration.*
+
 
 class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
                       frontRightSwerveModule : SwerveModule,
@@ -23,7 +24,7 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
                 frontLeftServoAngle : AnalogInput, frontRightServoAngle : AnalogInput,
                 backLeftServoAngle : AnalogInput, backRightServoAngle : AnalogInput,
                 gyroAngleProvider : () -> Rotation2d)
-            : this(SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle),
+            : this(SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle ),
                    SwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle),
                    SwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle),
                    SwerveModule(backRightDrive, backRightServo, backRightServoAngle),
@@ -31,10 +32,7 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
 
     // The locations of the swerve modules relative to the robot center (measurements in meters, taken from OnShape)
     // TODO: these might need to be moved to SwerveDriveConfiguration.kt
-    private val frontLeftLocation = Translation2d(0.132665, 0.132665)
-    private val frontRightLocation = Translation2d(0.132665, -0.132665)
-    private val backLeftLocation = Translation2d(-0.132665, 0.132665)
-    private val backRightLocation = Translation2d(-0.132665, -0.132665)
+
     private val dashboard = FtcDashboard.getInstance()
 
     // The kinematics object that converts between chassis speeds and module states
@@ -46,15 +44,30 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
     init {
         register()
 
-        // invert the left drive motors
-        frontLeftSwerveModule.driveMotor.inverted = true
-        backLeftSwerveModule.driveMotor.inverted = true
+        // invert the right drive motors
+        frontRightSwerveModule.driveMotor.inverted = true
+        backRightSwerveModule.driveMotor.inverted = true
     }
 
     override fun periodic() {
         // get the current time in seconds
         val currentTime = System.currentTimeMillis() / 1000.0
         swerveOdometry.updateWithTime(currentTime, gyroAngleProvider(), moduleStates[0], moduleStates[1], moduleStates[2], moduleStates[3])
+
+        dashboard.telemetry.addData("FL Angle", swerveModules[0].turnMotor.moduleAngle)
+        dashboard.telemetry.addData("FL Theoretical Angle", swerveModules[0].moduleState.angle.radians)
+
+        dashboard.telemetry.addData("FR Angle", swerveModules[1].turnMotor.moduleAngle)
+        dashboard.telemetry.addData("FL Theoretical Angle", swerveModules[1].moduleState.angle.radians)
+
+        dashboard.telemetry.addData("BL Angle", swerveModules[2].turnMotor.moduleAngle)
+        dashboard.telemetry.addData("BL Theoretical Angle", swerveModules[2].moduleState.angle.radians)
+
+        dashboard.telemetry.addData("BR Angle", swerveModules[3].turnMotor.moduleAngle)
+        dashboard.telemetry.addData("BR Theoretical Angle", swerveModules[3].moduleState.angle.radians)
+
+        dashboard.telemetry.update()
+
         drawServoModules()
     }
     fun drive(chassisSpeeds: ChassisSpeeds) {
@@ -70,14 +83,14 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
         swerveOdometry.resetPosition(initialPose, gyroAngleProvider())
      }
 
-    private fun drawServoModules(){
-        val x0 = 0.0
-        val y0 = 0.0
-        val xOffset = 30.0
-        val yOffset = 30.0
-        val radius = 10.0
-        val packet = TelemetryPacket()
+    val x0 = 0.0
+    val y0 = 0.0
+    val xOffset = 30.0
+    val yOffset = 30.0
+    val radius = 10.0
 
+    fun drawServoModules(){
+        val packet = TelemetryPacket()
         packet
             .fieldOverlay()
             // frontLeft
@@ -116,10 +129,12 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
     }
 
     private fun getXCoord(x:Double, angle:Double): Double {
-        return x + 10 * kotlin.math.cos(angle)
+        return x + radius * kotlin.math.cos(angle)
     }
 
     private fun getYCoord(y:Double, angle:Double):Double{
-        return y + 10 * kotlin.math.sin(angle)
+        return y + radius * kotlin.math.sin(angle)
     }
+
+
 }
