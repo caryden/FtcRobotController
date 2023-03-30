@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.controller.PIDController
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
+import com.qualcomm.robotcore.hardware.DcMotor
 
 class SwerveModuleDriveMotor(private val driveMotor: MotorEx) : SubsystemBase() {
     init {
@@ -13,13 +14,15 @@ class SwerveModuleDriveMotor(private val driveMotor: MotorEx) : SubsystemBase() 
         // set up the drive motor
         // TODO: Tune the velocity PID coefficients, and move them to the SwerveDriveConfiguration.
         //       We may need a different one for each swerveModule because each has a different friction.
+
+        driveMotor.motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
         driveMotor.setRunMode(Motor.RunMode.VelocityControl)
-//        driveMotor.setVeloCoefficients(0.05, 0.01, 0.31); // might want to move this to the SwerveDriveConfiguration
-//        driveMotor.setDistancePerPulse(SwerveDriveConfiguration.wheelCircumference * SwerveDriveConfiguration.wheelRevsPerMotorRev / driveMotor.cpr)
+        driveMotor.setVeloCoefficients(0.003, 0.00, 0.0); // might want to move this to the SwerveDriveConfiguration
+        driveMotor.setDistancePerPulse(SwerveDriveConfiguration.wheelCircumference * SwerveDriveConfiguration.wheelRevsPerMotorRev / driveMotor.cpr)
     }
 
     var velocity : Double
-        get() = driveMotor.velocity
+        get() = driveMotor.rate
         set(value) {
             driveMotor.set(value)
         }

@@ -10,7 +10,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAnalogInput: AnalogInput) : SubsystemBase() {
-    private val turnPIDController = PIDController(-0.4, 0.0, 0.0)
+    private val turnPIDController = PIDController(-0.6, 0.0, 0.0)
 
     private var servoWrapAngleOffset = 0.0
     private var currentWrappedServoAngle = getUnwrappedServoAngle()

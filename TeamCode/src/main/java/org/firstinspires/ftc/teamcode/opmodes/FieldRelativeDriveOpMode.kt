@@ -6,22 +6,20 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
-import com.arcrobotics.ftclib.hardware.RevIMU
 import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
-import com.arcrobotics.ftclib.kotlin.extensions.geometry.rotateBy
-import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.AnalogInput
 import com.qualcomm.robotcore.hardware.IMU
-import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.commands.SwerveDrive
 import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveBase
 import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveConfiguration
+import kotlin.math.pow
+import kotlin.math.sign
 
 
 @TeleOp(name = "Field Relative Drive Test", group = "none")
@@ -54,7 +52,7 @@ class FieldRelativeDriveOpMode() : CommandOpMode()  {
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
         // and now the swerve drive base
-        var gyroAngleProvider = {
+        val gyroAngleProvider = {
             Rotation2d(imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS))
         }
         val leapfrogDrive = SwerveDriveBase(frontLeftDrive, frontRRightDrive, backLeftDrive, backRightDrive,
@@ -63,19 +61,19 @@ class FieldRelativeDriveOpMode() : CommandOpMode()  {
 
         // Now create the command
         val driverOp = GamepadEx(gamepad1);
-        val iniitalPose = Pose2d(0.0, 0.0, gyroAngleProvider())
-        val command = SwerveDrive(leapfrogDrive, iniitalPose) {
-            val vxMetersPerSecond = driverOp.leftY * SwerveDriveConfiguration.maxWheelSpeed
-            val vyMetersPerSecond = driverOp.leftX * SwerveDriveConfiguration.maxWheelSpeed
+        val initialPose = Pose2d(0.0, 0.0, gyroAngleProvider())
+        val command = SwerveDrive(leapfrogDrive, initialPose) {
+            val vxMetersPerSecond = driverOp.leftY.pow(2.0) * sign(driverOp.leftY) * SwerveDriveConfiguration.maxWheelSpeed
+            val vyMetersPerSecond = driverOp.leftX.pow(2.0) * sign(driverOp.leftX) * SwerveDriveConfiguration.maxWheelSpeed
             val omegaRadiansPerSecond = driverOp.rightY * SwerveDriveConfiguration.maxAngularSpeed
             val robotYawAngle = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
             val robotRotation2d = Rotation2d(robotYawAngle)
 
-            telemetry.addData("vx", vxMetersPerSecond)
-            telemetry.addData("vy", vyMetersPerSecond)
-            telemetry.addData("omega", omegaRadiansPerSecond)
-            telemetry.addData("robotRotation2d.degrees", robotRotation2d.degrees)
-            telemetry.update()
+//            telemetry.addData("vx", vxMetersPerSecond)
+//            telemetry.addData("vy", vyMetersPerSecond)
+//            telemetry.addData("omega", omegaRadiansPerSecond)
+//            telemetry.addData("robotRotation2d.degrees", robotRotation2d.degrees)
+//            telemetry.update()
 
             return@SwerveDrive ChassisSpeeds.fromFieldRelativeSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond, robotRotation2d)
         }

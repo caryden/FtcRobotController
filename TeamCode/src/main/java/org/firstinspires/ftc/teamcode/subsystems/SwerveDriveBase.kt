@@ -90,29 +90,38 @@ class SwerveDriveBase(
             moduleStates[3]
         )
 
-        dashboard.telemetry.addData("FL Angle", swerveModules[0].turnMotor.moduleAngle)
-        dashboard.telemetry.addData(
-            "FL Theoretical Angle",
-            swerveModules[0].moduleState.angle.radians
-        )
+//        dashboard.telemetry.addData("FL Angle", swerveModules[0].turnMotor.moduleAngle)
+//        dashboard.telemetry.addData(
+//            "FL Theoretical Angle",
+//            swerveModules[0].moduleState.angle.radians
+//        )
+//
+//        dashboard.telemetry.addData("FR Angle", swerveModules[1].turnMotor.moduleAngle)
+//        dashboard.telemetry.addData(
+//            "FL Theoretical Angle",
+//            swerveModules[1].moduleState.angle.radians
+//        )
+//
+//        dashboard.telemetry.addData("BL Angle", swerveModules[2].turnMotor.moduleAngle)
+//        dashboard.telemetry.addData(
+//            "BL Theoretical Angle",
+//            swerveModules[2].moduleState.angle.radians
+//        )
+//
+//        dashboard.telemetry.addData("BR Angle", swerveModules[3].turnMotor.moduleAngle)
+//        dashboard.telemetry.addData(
+//            "BR Theoretical Angle",
+//            swerveModules[3].moduleState.angle.radians
+//        )
 
-        dashboard.telemetry.addData("FR Angle", swerveModules[1].turnMotor.moduleAngle)
-        dashboard.telemetry.addData(
-            "FL Theoretical Angle",
-            swerveModules[1].moduleState.angle.radians
-        )
-
-        dashboard.telemetry.addData("BL Angle", swerveModules[2].turnMotor.moduleAngle)
-        dashboard.telemetry.addData(
-            "BL Theoretical Angle",
-            swerveModules[2].moduleState.angle.radians
-        )
-
-        dashboard.telemetry.addData("BR Angle", swerveModules[3].turnMotor.moduleAngle)
-        dashboard.telemetry.addData(
-            "BR Theoretical Angle",
-            swerveModules[3].moduleState.angle.radians
-        )
+        dashboard.telemetry.addData("FL Target Velocity", moduleStates[0].speedMetersPerSecond)
+        dashboard.telemetry.addData("FL Actual Velocity", swerveModules[0].driveMotor.velocity)
+        dashboard.telemetry.addData("FR Target Velocity", moduleStates[1].speedMetersPerSecond)
+        dashboard.telemetry.addData("FR Actual Velocity", swerveModules[1].driveMotor.velocity)
+        dashboard.telemetry.addData("BL Target Velocity", moduleStates[2].speedMetersPerSecond)
+        dashboard.telemetry.addData("BL Actual Velocity", swerveModules[2].driveMotor.velocity)
+        dashboard.telemetry.addData("BR Target Velocity", moduleStates[3].speedMetersPerSecond)
+        dashboard.telemetry.addData("BR Actual Velocity", swerveModules[3].driveMotor.velocity)
 
         dashboard.telemetry.update()
 
