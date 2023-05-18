@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.AnalogInput
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation
 import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveConfiguration.*
 import org.firstinspires.ftc.teamcode.utils.SwerveUtils
 
@@ -38,10 +39,10 @@ class SwerveDriveBase(
         gyroAngleProvider: () -> Rotation2d
     )
             : this(
-        SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle),
-        SwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle),
-        SwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle),
-        SwerveModule(backRightDrive, backRightServo, backRightServoAngle),
+        SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle, frontLeftKp, frontLeftKi, frontLeftKd),
+        SwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle, frontRightKp, frontRightKi, frontRightKd),
+        SwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle, backLeftKp, backLeftKi, backLeftKd),
+        SwerveModule(backRightDrive, backRightServo, backRightServoAngle, backRightKp, backLeftKi, backLeftKd),
         gyroAngleProvider
     )
 
@@ -90,30 +91,6 @@ class SwerveDriveBase(
             moduleStates[3]
         )
 
-//        dashboard.telemetry.addData("FL Angle", swerveModules[0].turnMotor.moduleAngle)
-//        dashboard.telemetry.addData(
-//            "FL Theoretical Angle",
-//            swerveModules[0].moduleState.angle.radians
-//        )
-//
-//        dashboard.telemetry.addData("FR Angle", swerveModules[1].turnMotor.moduleAngle)
-//        dashboard.telemetry.addData(
-//            "FL Theoretical Angle",
-//            swerveModules[1].moduleState.angle.radians
-//        )
-//
-//        dashboard.telemetry.addData("BL Angle", swerveModules[2].turnMotor.moduleAngle)
-//        dashboard.telemetry.addData(
-//            "BL Theoretical Angle",
-//            swerveModules[2].moduleState.angle.radians
-//        )
-//
-//        dashboard.telemetry.addData("BR Angle", swerveModules[3].turnMotor.moduleAngle)
-//        dashboard.telemetry.addData(
-//            "BR Theoretical Angle",
-//            swerveModules[3].moduleState.angle.radians
-//        )
-
         dashboard.telemetry.addData("FL Target Velocity", moduleStates[0].speedMetersPerSecond)
         dashboard.telemetry.addData("FL Actual Velocity", swerveModules[0].driveMotor.velocity)
         dashboard.telemetry.addData("FR Target Velocity", moduleStates[1].speedMetersPerSecond)
@@ -142,6 +119,10 @@ class SwerveDriveBase(
         // to be called in the OpMode initialize() method
         swerveModules.forEach { it.initialize() }
         swerveOdometry.resetPosition(initialPose, gyroAngleProvider())
+    }
+
+    fun getExternalHeading(){
+        gyroAngleProvider()
     }
 
     val x0 = 0.0

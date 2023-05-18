@@ -15,6 +15,8 @@ class SwerveModule(private val swerveDriveMotor : SwerveModuleDriveMotor,
 ) : SubsystemBase() {
    constructor(driveMotor: MotorEx, turnMotor: CRServo, angleAnalogInput: AnalogInput) :
            this(SwerveModuleDriveMotor(driveMotor), SwerveModuleTurnServo(turnMotor, angleAnalogInput))
+    constructor(driveMotor: MotorEx, turnMotor: CRServo, angleAnalogInput: AnalogInput, kp:Double, ki:Double, kd: Double):
+            this(SwerveModuleDriveMotor(driveMotor, kp, ki, kd), SwerveModuleTurnServo(turnMotor, angleAnalogInput))
     init {
         // register so tha the command scheduler can call periodic() where we update the drive motor
         initialize()

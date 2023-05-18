@@ -6,7 +6,9 @@ import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.qualcomm.robotcore.hardware.DcMotor
 
-class SwerveModuleDriveMotor(private val driveMotor: MotorEx) : SubsystemBase() {
+class SwerveModuleDriveMotor(private val driveMotor: MotorEx, kp: Double, ki: Double, kd: Double) : SubsystemBase() {
+
+    constructor(driveMotor: MotorEx): this(driveMotor, 0.003, 0.0,0.0)
     init {
         // register so tha the command scheduler can call periodic() where we update the drive motor
         register()
@@ -17,7 +19,8 @@ class SwerveModuleDriveMotor(private val driveMotor: MotorEx) : SubsystemBase() 
 
         driveMotor.motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
         driveMotor.setRunMode(Motor.RunMode.VelocityControl)
-        driveMotor.setVeloCoefficients(0.003, 0.00, 0.0); // might want to move this to the SwerveDriveConfiguration
+        // kp = 0.003
+        driveMotor.setVeloCoefficients(kp, ki, kd) // might want to move this to the SwerveDriveConfiguration
         driveMotor.setDistancePerPulse(SwerveDriveConfiguration.wheelCircumference * SwerveDriveConfiguration.wheelRevsPerMotorRev / driveMotor.cpr)
     }
 
