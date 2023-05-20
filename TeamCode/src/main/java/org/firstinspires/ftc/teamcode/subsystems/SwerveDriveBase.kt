@@ -1,7 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import DashboardUtils
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.drive.DriveSignal
+import com.acmerobotics.roadrunner.kinematics.Kinematics
+import com.acmerobotics.roadrunner.kinematics.MecanumKinematics
+import com.acmerobotics.roadrunner.localization.Localizer
+import com.acmerobotics.roadrunner.util.Angle
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
@@ -9,9 +15,7 @@ import com.arcrobotics.ftclib.hardware.motors.CRServo
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.AnalogInput
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation
 import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveConfiguration.*
 import org.firstinspires.ftc.teamcode.utils.SwerveUtils
 
@@ -42,7 +46,7 @@ class SwerveDriveBase(
         SwerveModule(frontLeftDrive, frontLeftServo, frontLeftServoAngle, frontLeftKp, frontLeftKi, frontLeftKd),
         SwerveModule(frontRightDrive, frontRightServo, frontRightServoAngle, frontRightKp, frontRightKi, frontRightKd),
         SwerveModule(backLeftDrive, backLeftServo, backLeftServoAngle, backLeftKp, backLeftKi, backLeftKd),
-        SwerveModule(backRightDrive, backRightServo, backRightServoAngle, backRightKp, backLeftKi, backLeftKd),
+        SwerveModule(backRightDrive, backRightServo, backRightServoAngle, backRightKp, backRightKi, backRightKd),
         gyroAngleProvider
     )
 
@@ -64,13 +68,13 @@ class SwerveDriveBase(
         backLeftSwerveModule,
         backRightSwerveModule
     )
-    private val swerveOdometry =
+    private val odometry =
         com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveOdometry(
             kinematics,
             gyroAngleProvider()
         )
     private var moduleStates = kinematics.toSwerveModuleStates(ChassisSpeeds(0.0, 0.0, 0.0))
-
+    private var externalHeading: Double = 0.0
     init {
         register()
 
@@ -82,7 +86,7 @@ class SwerveDriveBase(
     override fun periodic() {
         // get the current time in seconds
         val currentTime = System.currentTimeMillis() / 1000.0
-        swerveOdometry.updateWithTime(
+        odometry.updateWithTime(
             currentTime,
             gyroAngleProvider(),
             moduleStates[0],
@@ -101,8 +105,7 @@ class SwerveDriveBase(
         dashboard.telemetry.addData("BR Actual Velocity", swerveModules[3].driveMotor.velocity)
 
         dashboard.telemetry.update()
-
-        drawServoModules()
+        DashboardUtils.drawServoModules(swerveModules, dashboard)
     }
 
     fun drive(chassisSpeeds: ChassisSpeeds) {
@@ -114,72 +117,43 @@ class SwerveDriveBase(
         }
     }
 
+    fun setDriveSignal(signal: DriveSignal){
+
+    }
+
     fun initialize(initialPose: Pose2d) {
         // this will assume that all modules are point forward (+x) and will assign this the 0 degree position
         // to be called in the OpMode initialize() method
         swerveModules.forEach { it.initialize() }
-        swerveOdometry.resetPosition(initialPose, gyroAngleProvider())
+        odometry.resetPosition(initialPose, gyroAngleProvider())
     }
 
-    fun getExternalHeading(){
-        gyroAngleProvider()
-    }
+    // TODO: Finish implementing roadrunner stuff
+    class SwerveLocalizer @JvmOverloads constructor(
+        private val drive: SwerveDriveBase,
+        private val useExternalHeading:Boolean = true,
+    ) : Localizer {
+        private var _poseEstimate = com.acmerobotics.roadrunner.geometry.Pose2d()
+        override var poseEstimate: com.acmerobotics.roadrunner.geometry.Pose2d
+            get() = _poseEstimate
+            set(value) {
+                lastModuleStates = emptyList()
+                lastExtHeading = Double.NaN
+                if (useExternalHeading) drive.externalHeading = value.heading
+                _poseEstimate = value
+            }
+        override var poseVelocity: com.acmerobotics.roadrunner.geometry.Pose2d? = null
+            private set
+        private var lastModuleStates = emptyList<Double>()
+        private var lastExtHeading = Double.NaN
 
-    val x0 = 0.0
-    val y0 = 0.0
-    val xOffset = 30.0
-    val yOffset = 30.0
-    val radius = 10.0
+        override fun update() {
+            TODO("Not yet implemented")
+            // Find the delta in module states now vs last loop
+            // Feed that data to kinematics, find change in position
+            // Add that change in position to old position to get new estimate
+        }
 
-    fun drawServoModules() {
-        val packet = TelemetryPacket()
-        packet
-            .fieldOverlay()
-            // frontLeft
-            .setStroke("green")
-            .strokeCircle(x0 + xOffset, y0 + yOffset, radius)
-            .strokeLine(
-                x0 + xOffset, y0 + yOffset,
-                getXCoord(x0 + xOffset, swerveModules[0].turnMotor.moduleAngle),
-                getYCoord(y0 + yOffset, swerveModules[0].turnMotor.moduleAngle)
-            )
-
-            // frontRight
-            .setStroke("blue")
-            .strokeCircle(x0 + xOffset, y0 - yOffset, radius)
-            .strokeLine(
-                x0 + xOffset, y0 - yOffset,
-                getXCoord(x0 + xOffset, swerveModules[1].turnMotor.moduleAngle),
-                getYCoord(y0 - yOffset, swerveModules[1].turnMotor.moduleAngle)
-            )
-
-            // backLeft
-            .setStroke("orange")
-            .strokeCircle(x0 - xOffset, y0 + yOffset, radius)
-            .strokeLine(
-                x0 - xOffset, y0 + yOffset,
-                getXCoord(x0 - xOffset, swerveModules[2].turnMotor.moduleAngle),
-                getYCoord(y0 + yOffset, swerveModules[2].turnMotor.moduleAngle)
-            )
-
-            // backRight
-            .setStroke("purple")
-            .strokeCircle(x0 - xOffset, y0 - yOffset, radius)
-            .strokeLine(
-                x0 - xOffset, y0 - yOffset,
-                getXCoord(x0 - xOffset, swerveModules[3].turnMotor.moduleAngle),
-                getYCoord(y0 - yOffset, swerveModules[3].turnMotor.moduleAngle)
-            )
-
-        dashboard.sendTelemetryPacket(packet)
-    }
-
-    private fun getXCoord(x: Double, angle: Double): Double {
-        return x + radius * kotlin.math.cos(angle)
-    }
-
-    private fun getYCoord(y: Double, angle: Double): Double {
-        return y + radius * kotlin.math.sin(angle)
     }
 
 
