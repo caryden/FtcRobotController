@@ -64,16 +64,16 @@ class FieldRelativeDriveOpMode() : CommandOpMode()  {
         val initialPose = Pose2d(0.0, 0.0, gyroAngleProvider())
         val command = SwerveDrive(leapfrogDrive, initialPose) {
             val vxMetersPerSecond = driverOp.leftY.pow(2.0) * sign(driverOp.leftY) * SwerveDriveConfiguration.maxWheelSpeed
-            val vyMetersPerSecond = driverOp.leftX.pow(2.0) * sign(driverOp.leftX) * SwerveDriveConfiguration.maxWheelSpeed
+            val vyMetersPerSecond = -driverOp.leftX.pow(2.0) * sign(driverOp.leftX) * SwerveDriveConfiguration.maxWheelSpeed
             val omegaRadiansPerSecond = driverOp.rightY * SwerveDriveConfiguration.maxAngularSpeed
             val robotYawAngle = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
             val robotRotation2d = Rotation2d(robotYawAngle)
 
-//            telemetry.addData("vx", vxMetersPerSecond)
-//            telemetry.addData("vy", vyMetersPerSecond)
-//            telemetry.addData("omega", omegaRadiansPerSecond)
-//            telemetry.addData("robotRotation2d.degrees", robotRotation2d.degrees)
-//            telemetry.update()
+            telemetry.addData("vx", vxMetersPerSecond)
+            telemetry.addData("vy", vyMetersPerSecond)
+            telemetry.addData("omega", omegaRadiansPerSecond)
+            telemetry.addData("robotRotation2d.degrees", robotRotation2d.degrees)
+            telemetry.update()
 
             return@SwerveDrive ChassisSpeeds.fromFieldRelativeSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond, robotRotation2d)
         }

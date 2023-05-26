@@ -95,14 +95,15 @@ class SwerveDriveBase(
             moduleStates[3]
         )
 
-        dashboard.telemetry.addData("FL Target Velocity", moduleStates[0].speedMetersPerSecond)
-        dashboard.telemetry.addData("FL Actual Velocity", swerveModules[0].driveMotor.velocity)
-        dashboard.telemetry.addData("FR Target Velocity", moduleStates[1].speedMetersPerSecond)
-        dashboard.telemetry.addData("FR Actual Velocity", swerveModules[1].driveMotor.velocity)
-        dashboard.telemetry.addData("BL Target Velocity", moduleStates[2].speedMetersPerSecond)
-        dashboard.telemetry.addData("BL Actual Velocity", swerveModules[2].driveMotor.velocity)
-        dashboard.telemetry.addData("BR Target Velocity", moduleStates[3].speedMetersPerSecond)
-        dashboard.telemetry.addData("BR Actual Velocity", swerveModules[3].driveMotor.velocity)
+//        dashboard.telemetry.addData("FL Target Angle", moduleStates[0].angle.degrees)
+//        dashboard.telemetry.addData("FL Actual Angle", Math.toDegrees(swerveModules[0].turnMotor.moduleAngle))
+//        dashboard.telemetry.addData("FR Target Angle", moduleStates[1].angle.degrees)
+//        dashboard.telemetry.addData("FR Actual Angle", Math.toDegrees(swerveModules[1].turnMotor.moduleAngle))
+//        dashboard.telemetry.addData("BL Target Angle", moduleStates[2].angle.degrees)
+//        dashboard.telemetry.addData("BL Actual Angle", Math.toDegrees(swerveModules[2].turnMotor.moduleAngle))
+//        dashboard.telemetry.addData("BR Target Angle", moduleStates[3].angle.degrees)
+//        dashboard.telemetry.addData("BR Actual Angle", Math.toDegrees(swerveModules[3].turnMotor.moduleAngle))
+        dashboard.telemetry.addData("Angle", gyroAngleProvider.invoke().degrees)
 
         dashboard.telemetry.update()
         DashboardUtils.drawServoModules(swerveModules, dashboard)
@@ -114,6 +115,7 @@ class SwerveDriveBase(
         swerveModules.forEachIndexed { index, swerveModule ->
             swerveModule.moduleState =
                 SwerveUtils.optimize(moduleStates[index], swerveModule.moduleState.angle)
+//            swerveModule.moduleState = moduleStates[index]
         }
     }
 

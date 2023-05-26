@@ -30,7 +30,7 @@ public class SwerveDriveConfiguration {
     public static double frontRightKi = 0.0;
     public static double frontRightKd = 0.0;
 
-    public static double backRightKp = 0.003;
+    public static double backRightKp = 0.007;
     public static double backRightKi = 0.0;
     public static double backRightKd = 0.0;
 
@@ -41,4 +41,6 @@ public class SwerveDriveConfiguration {
     public static double backLeftKp = 0.003;
     public static double backLeftKi = 0.0;
     public static double backLeftKd = 0.0;
+
+    public static double turnKp = 0.6;
 }

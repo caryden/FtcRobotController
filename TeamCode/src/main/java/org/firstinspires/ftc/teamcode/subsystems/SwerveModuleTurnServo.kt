@@ -10,7 +10,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAnalogInput: AnalogInput) : SubsystemBase() {
-    private val turnPIDController = PIDController(-0.6, 0.0, 0.0)
+    private val turnPIDController = PIDController(SwerveDriveConfiguration.turnKp, 0.0, 0.0)
 
     private var servoWrapAngleOffset = 0.0
     private var currentWrappedServoAngle = getUnwrappedServoAngle()
@@ -64,7 +64,7 @@ class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAna
            }
     }
     private fun updateCurrentModuleAngle() {
-        val unwrappedServoAngle = getUnwrappedServoAngle()
+        val unwrappedServoAngle = getUnwrappedServoAngle() // Raw angle of servo from 0 -> 2pi
         val newWrappedServoAngle =  servoWrapAngleOffset + unwrappedServoAngle
 
         // if the new angle is more than pi radians away from the current angle, add or subtract 2pi radians to the offset
@@ -76,6 +76,7 @@ class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAna
         currentModuleAngle = (currentWrappedServoAngle * gearRatio - initialModuleAngle) % (2 * Math.PI)
     }
     private fun getUnwrappedServoAngle(): Double {
-        return angleAnalogInput.voltage/angleAnalogInput.maxVoltage * 2 * Math.PI
+        // return angleAnalogInput.voltage /angleAnalogInput.maxVoltage * 2 * Math.PI
+        return (angleAnalogInput.maxVoltage - angleAnalogInput.voltage) /angleAnalogInput.maxVoltage * 2 * Math.PI
     }
 }
