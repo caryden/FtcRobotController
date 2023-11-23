@@ -28,10 +28,11 @@ class SwerveDriveBase(frontLeftSwerveModule : SwerveModule,
 
     // The locations of the swerve modules relative to the robot center (measurements in meters, taken from OnShape)
     // TODO: these might need to be moved to SwerveDriveConfiguration.kt
-    private val frontLeftLocation = Translation2d(0.132665, 0.132665)
-    private val frontRightLocation = Translation2d(0.132665, -0.132665)
-    private val backLeftLocation = Translation2d(-0.132665, 0.132665)
-    private val backRightLocation = Translation2d(-0.132665, -0.132665)
+    private val mainDimension = 130.9 / 1000.0
+    private val frontLeftLocation = Translation2d(mainDimension, mainDimension)
+    private val frontRightLocation = Translation2d(mainDimension, -mainDimension)
+    private val backLeftLocation = Translation2d(-mainDimension, mainDimension)
+    private val backRightLocation = Translation2d(-mainDimension, -mainDimension)
 
     // The kinematics object that converts between chassis speeds and module states
     private val kinematics = SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation)

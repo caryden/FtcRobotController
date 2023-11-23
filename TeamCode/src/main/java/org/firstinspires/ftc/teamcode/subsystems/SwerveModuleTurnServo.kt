@@ -19,7 +19,7 @@ class SwerveModuleTurnServo(private val turnMotor: CRServo, private val angleAna
 
     private var initialized = false
     private var initialModuleAngle = 0.0
-    private val gearRatio = 24.0/60.0
+    private val gearRatio = 1.0/1.0
     val turnPIDAngleTolerance = 2 * Math.PI / 360.0 / 2 // 1/2 degree tolerance for the PID controller
     init {
         turnPIDController.setTolerance(turnPIDAngleTolerance)

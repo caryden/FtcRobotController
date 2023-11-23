@@ -41,7 +41,7 @@ class TestPodServos(private val allServos : MotorGroup,
             servoWrapAngleOffset += 360.0 * -sign(newWrappedServoAngle - currentWrappedServoAngle)
         currentWrappedServoAngle = servoWrapAngleOffset + unwrappedServoAngle
 
-        val gearRatio = 24.0/60.0
+        val gearRatio = 1.0/1.0
         if(!initialized) {
             initialModuleAngle = currentWrappedServoAngle * gearRatio
             initialized = true
@@ -55,11 +55,11 @@ class TestPodServos(private val allServos : MotorGroup,
         val turnMotorPower = max(-1.0, min(1.0, turnPIDController.calculate(angleDifference, 0.0)))
         bRServo.set(turnMotorPower)
 
-//        telemetry.addData("bRA.voltage", bRA.voltage )
-//        telemetry.addData("bRA.maxVoltage", bRA.maxVoltage )
-//        telemetry.addData("unwrappedServoAngle", unwrappedServoAngle )
-//        telemetry.addData("newWrappedServoAngle", newWrappedServoAngle )
-//        telemetry.addData("currentWrappedServoAngle", currentWrappedServoAngle )
+        telemetry.addData("bRA.voltage", bRA.voltage )
+        telemetry.addData("bRA.maxVoltage", bRA.maxVoltage )
+        telemetry.addData("unwrappedServoAngle", unwrappedServoAngle )
+        telemetry.addData("newWrappedServoAngle", newWrappedServoAngle )
+        telemetry.addData("currentWrappedServoAngle", currentWrappedServoAngle )
         telemetry.addData("angleDifference", angleDifference )
         telemetry.addData("currentModuleAngle", currentModuleAngle )
         telemetry.addData("targetModuleAngle", targetModuleAngle )
