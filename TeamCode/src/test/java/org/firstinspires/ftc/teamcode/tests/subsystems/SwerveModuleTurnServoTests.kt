@@ -6,12 +6,9 @@ import org.firstinspires.ftc.teamcode.subsystems.SwerveDriveConfiguration
 import org.firstinspires.ftc.teamcode.subsystems.SwerveModuleTurnServo
 import org.firstinspires.ftc.teamcode.utils.clamp
 import org.junit.Assert.*
-import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.*
-import kotlin.math.max
-import kotlin.math.min
 
 class SwerveModuleTurnServoTests {
     val maxAnalogInputVoltage = 3.3
